@@ -1,0 +1,37 @@
+#Clone ArduPilot
+cd ~
+sudo apt install git
+git clone https://github.com/ArduPilot/ardupilot.git
+cd ardupilot
+
+git checkout Copter-(newest version)
+git submodule update --init --recursive
+
+#Install dependencies
+sudo apt install python-matplotlib python-serial python-wxgtk3.0 python-wxtools python-lxml python-scipy python-opencv ccache gawk python-pip python-pexpect
+
+#Install MAVProxy
+sudo pip install future pymavlink MAVProxy
+
+#Add Lines to ~/.bashrc
+    #export PATH=$PATH:$HOME/ardupilot/Tools/autotest
+    #export PATH=/usr/lib/ccache:$PATH
+
+./~bashrc
+
+#Run SITL 
+cd ~/ardupilot/ArduCopter
+sim_vehicle.py -w
+sim_vehicle.py -L (Location Name) --map --console
+
+#Adding new Location to SITL
+gedit ~/ardupilot/Tools/autotest/locations.txt
+    #Add new (Lat, Lon, Alt, Yaw)
+
+#Installing QGroundControl
+sudo usermod -a -G dialout $USER
+sudo apt-get remove modemmanager
+
+wget https://s3-us-west-2.amazonaws.com/qgroundcontrol/latest/QGroundControl.AppImage
+chmod +x ./QGroundControl.AppImage 
+./QGroundControl.AppImage

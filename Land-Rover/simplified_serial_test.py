@@ -6,10 +6,10 @@ import time
 saber2x25 = serial.Serial(
         port='/dev/ttyS0', #Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
         baudrate = 9600
-        parity=serial.PARITY_NONE,
-        stopbits=serial.STOPBITS_ONE,
-        bytesize=serial.EIGHTBITS,
-        timeout=1
+        #parity=serial.PARITY_NONE,
+        #stopbits=serial.STOPBITS_ONE,
+        #bytesize=serial.EIGHTBITS,
+        #timeout=1
 )
 
 '''
@@ -24,8 +24,9 @@ def m1(speed):
     
     '''
     if speed > 100 and speed < -100:
-        print('A speed of (%s) is too high',%(speed))
-    else
+        #print('A speed of (%s) is too high',%(speed))
+	print("Speed is too high")
+    else:
         speed = speed * 0.63
         motor = speed + 64
         motor = int(motor)
@@ -37,8 +38,9 @@ def m2(speed):
     
     '''
     if speed > 100 and speed < -100:
-        print('A speed of (%s) is too high',%(speed))
-    else
+        #print('A speed of (%s) is too high',%(speed))
+	print("Speed is too high")
+    else:
         speed = speed * 0.63
         motor = speed + 192
         motor = int(motor)
@@ -50,8 +52,9 @@ def move(speed):
     
     '''
     if speed > 100 and speed < -100:
-        print('A speed of (%s) is too high',%(speed))
-    else
+        #print('A speed of (%s) is too high',%(speed))
+	print("Speed is too high")
+    else:
         m1(speed)
         m2(speed)
     return
@@ -74,7 +77,7 @@ def turnRight():
     time.sleep(1)
     return
 
-def stop()
+def stop():
     '''
 
     '''
@@ -82,17 +85,17 @@ def stop()
     m2(0)
     return
 
-def emergencyStop()
+def emergencyStop():
     '''
     (hex 0x00) is shut down both motors
     '''
-    send = (hex)0x00
+    send = hex(0)
     saber2x25.write(send)
     return
 
 #????MAIN_PROGRAM????#
 
-serial.open()
+#serial.open()
 
 move(10)
 time.sleep(2)
@@ -100,6 +103,7 @@ stop()
 turnRight()
 turnLeft()
 time.sleep(1)
+stop()
 emergencyStop()
 
-serial.close()
+#serial.close()

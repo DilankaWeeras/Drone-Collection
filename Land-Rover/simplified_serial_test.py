@@ -23,28 +23,26 @@ def m1(speed):
     ''' 
     
     '''
-    if speed > 100 and speed < -100:
+    if speed > 60 and speed < -60:
         #print('A speed of (%s) is too high',%(speed))
 	print("Speed is too high")
     else:
-        speed = speed * 0.63
         motor = speed + 64
-        motor = int(motor)
-        saber2x25.write(motor)
+        send = hex(motor)
+        saber2x25.write(send)
     return
 
 def m2(speed):
     ''' 
     
     '''
-    if speed > 100 and speed < -100:
+    if speed > 60 and speed < -60:
         #print('A speed of (%s) is too high',%(speed))
-	print("Speed is too high")
+        print("Speed is too high")
     else:
-        speed = speed * 0.63
         motor = speed + 192
-        motor = int(motor)
-        saber2x25.write(motor)
+        send = hex(motor)
+        saber2x25.write(send)
     return
 
 def move(speed):
@@ -65,7 +63,8 @@ def turnLeft():
     '''
     m1(20)
     m2(-20)
-    time.sleep(1)
+    time.sleep(0.5)
+    stop()
     return
 
 def turnRight():
@@ -74,7 +73,8 @@ def turnRight():
     '''
     m1(-20)
     m2(20)
-    time.sleep(1)
+    time.sleep(0.5)
+    stop()
     return
 
 def stop():
@@ -83,13 +83,18 @@ def stop():
     '''
     m1(0)
     m2(0)
+    #saber2x25.write(64)
+    #saber2x25.write(192)
+
     return
 
 def emergencyStop():
     '''
     (hex 0x00) is shut down both motors
     '''
-    send = hex(0)
+    send = hex(64)
+    saber2x25.write(send)
+    send = hex(192)
     saber2x25.write(send)
     return
 
@@ -98,12 +103,18 @@ def emergencyStop():
 #serial.open()
 
 move(10)
-time.sleep(2)
+#saber2x25.write(84)
+#saber2x25.write(212)
+time.sleep(1)
 stop()
 turnRight()
 turnLeft()
 time.sleep(1)
 stop()
-emergencyStop()
+#emergencyStop()
+
+saber2x25.write(84)
+saber2x25.write(212)
+
 
 #serial.close()

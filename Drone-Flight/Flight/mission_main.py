@@ -22,6 +22,10 @@ sitl = None
 print('Connecting to vehicle on: %s' % connection_string)
 vehicle = connect(connection_string, wait_ready=True)
 
+#Global Variables --
+full_altitude = 0
+full_yaw = 0
+
 #PRINT METHODS
 def print_location():
     """
@@ -141,14 +145,20 @@ def read_add_waypoints():
     file_loc = open("locations.txt", "r")
 
     numwaypts = 0
-
+    first = True
     for line in file_loc:
-        line_split = line.split(', ')
-        aLatitude = float(line_split[0])
-        aLongitude = float(line_split[1])
-        aAltitude = float(10)
-        add_mission_point(aLatitude, aLongitude, aAltitude)
-        numwaypts=numwaypts+1
+        line_split = line.split(',')
+
+        if first:
+            full_altitude = float(line_split[0])
+            full_yaw = float(line_split[1])
+            first = False
+        else: 
+            aLatitude = float(line_split[0])
+            aLongitude = float(line_split[1])
+            aAltitude = float(10)
+            add_mission_point(aLatitude, aLongitude, full_altitude)
+            numwaypts=numwaypts+1
 
         if 'str' in line:
             break
@@ -204,7 +214,7 @@ def land_vehilce():
     '''
 
 #DRONE CONTROL
-def condition_yaw(heading, relative=False):
+def condition_yaw(heading = full_yaw, relative=False):
     if relative:
         is_relative=1 #yaw relative to direction of travel
     else:
@@ -256,10 +266,10 @@ while True:
     if currentwaypoint!=nextwaypoint:
         print("Stablize Motor for Video")
         vehicle.mode = VehicleMode("GUIDED")
-        condition_yaw(180)
-        time.sleep(10)
+        condition_yaw(full_yaw)
+        time.sleep(5)
         vehicle.mode = VehicleMode("BRAKE")
-        time.sleep(10)
+        time.sleep(7)
         #This is when RASPI CAMERA WILL TAKE VIDEO---
         print("Video recorded")
         currentwaypoint=nextwaypoint

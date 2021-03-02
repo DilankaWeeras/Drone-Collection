@@ -4,14 +4,14 @@ import time
 #-- Connect to vehicle
 import argparse
 parser = argparse.ArgumentParser(description='commands')
-parser.add argument('--connect')
+parser.add_argument('--connect')
 args = parser.parse_args()
 
 connection_string = args.connect
 
 
 print("Connection to the vehicle on %s"%connection_string)
-vehicle = connect(connection_string, wait_ready = True)
+vehicle = connect(connection_string, baud=57600, wait_ready = True)
 
 #-- Define the dunction for takeoff
 def arm_and_takeoff(tgt_altitude) :
@@ -34,7 +34,7 @@ def arm_and_takeoff(tgt_altitude) :
             print("Altitude Reached")
             break
 
-        time sleep(1)
+        time.sleep(1)
 
 #---------MAIN Program---------
 arm_and_takeoff(10)

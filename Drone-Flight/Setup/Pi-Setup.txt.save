@@ -1,0 +1,12 @@
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt-get install python-pip
+sudo apt-get install python-dev
+sudo pip install future
+sudo apt-get install screen wxgtk libxml libxslt
+sudo pip install pyserial
+sudo pip install dronekit
+sudo pip install MAVProxy
+
+echo "Setup RPi for UART communication"
+echo "raspi-config then disable UART for console, enable it for serial port hardware"

@@ -41,7 +41,7 @@ arm_and_takeoff(10)
 
 #-- set the default speed
 vehicle.airspeed = 7
-
+'''
 #--Go to wp1
 print("go to wp1")
 wp1 = LocationGlobalRelative(35.9872609, -95.8753037, 10)
@@ -50,10 +50,10 @@ vehicle.simple_goto(wp1)
 
 #--- Do picture funcitons
 time.sleep(30)
-
+'''
 #--- Return to initial Location
 print("Coming back")
-vehicle.mode = VehicleMode("RTL")
+vehicle.mode = VehicleMode("LAND")
 
 time.sleep(20)
 

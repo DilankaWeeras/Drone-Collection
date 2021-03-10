@@ -94,10 +94,7 @@ def emergencyStop():
     '''
     (chr 0x00) is shut down both motors
     '''
-    send = chr(64)
-    saber2x25.write(send)
-
-    send = chr(192)
+    send = chr(0x00)
     saber2x25.write(send)
     return
 

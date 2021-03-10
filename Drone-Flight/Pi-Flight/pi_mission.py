@@ -10,12 +10,13 @@ from pymavlink import mavutil
 
 #Set up option parsing to get connection string
 
-connection_string = args.connect
+connection_string = '/dev/ttyAMA0'
+baud_rate = 57600
 sitl = None
 
 # Connect to the Vehicle
 print('Connecting to vehicle on: %s' % connection_string)
-vehicle = connect(/dev/ttyAMA0,baud = 57600, wait_ready=True)
+vehicle = connect(connection_string,baud = baud_rate, wait_ready=True)
 
 #Global Variables --
 full_altitude = 0

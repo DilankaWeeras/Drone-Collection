@@ -235,16 +235,15 @@ def condition_yaw(heading = full_yaw, relative=False):
 def set_velocity_body(Vx, Vy, Vz):
     msg = vehicle.message_factory.set_position_target_local_ned_encode(
         0,
-        0,0
+        0,0,
         mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED,
         0b0000111111000111,
-        0,0,0
+        0,0,0,
         Vx,Vy,Vz,
-        0,0,0
+        0,0,0,
         0,0)
     vehicle.send_mavlink(msg)
     vehicle.flush()
-    )
 
 #///MAIN MISSION///
 

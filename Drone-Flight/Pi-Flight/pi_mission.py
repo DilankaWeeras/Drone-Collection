@@ -26,6 +26,7 @@ full_yaw = 0
 camera.rotation = 180
 camera.resolution = (1920,1080) #max is (2592,1944) for pic / (1920,1080) for vid at 15fps
 camera.framerate = 15
+video_number = 0
 
 #PRINT METHODS
 def print_location():
@@ -233,6 +234,19 @@ def condition_yaw(heading = full_yaw, relative=False):
     # send command to vehicle
     vehicle.send_mavlink(msg)
 
+def set_velocity_body(Vx, Vy, Vz):
+    msg = vehicle.message_factory.set_position_target_local_ned_encode(
+        0,
+        0,0,
+        mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED,
+        0b0000111111000111,
+        0,0,0,
+        Vx,Vy,Vz,
+        0,0,0,
+        0,0)
+    vehicle.send_mavlink(msg)
+    vehicle.flush()
+
 #///MAIN MISSION///
 
 print('CLEAR OLD MISSION')
@@ -262,17 +276,11 @@ currentwaypoint=vehicle.commands.next
 while True:
 
     #Video Transmission Increments BEGIN
-
-    rows = 0
-    cols = 0
-
-    video_number = 1
-    video_name = ""
+    video_number = video_number + 1
     #Video Transmission Increments END
 
     nextwaypoint=vehicle.commands.next
     print('Distance to waypoint (%s): %s' % (nextwaypoint, distance_to_current_waypoint()))
-    print('Battery Level (%s)'%(get_battery()))
     
     if currentwaypoint!=nextwaypoint:
         print("Stablize Motor for Video")
@@ -280,32 +288,44 @@ while True:
         condition_yaw(full_yaw)
         time.sleep(5)
         vehicle.mode = VehicleMode("BRAKE")
-        time.sleep(1)
-        
         # This is when RASPI CAMERA WILL TAKE VIDEO---
-
-        if (video_number % 2) == 0:
-            video_name = video_number + 'l'
-        else:
-            video_name = video_number + 'r'
 
         camera.start_preview()
         time.sleep(2)
-        camera.start_recording('/home/pi/Videos/' + video_name + '.h264')
-        time.sleep(5)
+        camera.start_recording('/home/pi/Videos/' + video_number + 'l.h264')
+        time.sleep(2)
         camera.stop_recording()
+        camera.capture('/home/pi/Pictures/'+ video_number +'l.jpg')
+        camera.stop_preview()
+
+        vehicle.mode = VehicleMode("GUIDED")
+        set_velocity_body(0,1,0)
+        time.sleep(2)
+        vehicle.mode = VehicleMode("BRAKE")
+
+        camera.start_preview()
+        time.sleep(2)
+        camera.start_recording('/home/pi/Videos/' + video_number + 'r.h264')
+        time.sleep(2)
+        camera.stop_recording()
+        camera.capture('/home/pi/Pictures/'+ video_number +'r.jpg')
         camera.stop_preview()
 
         # Raspi End Video
         print("Video recorded")
+
+        #Video Transmission Increments BEGIN
+        video_number = video_number + 1
+        #Video Transmission Increments END
+
         currentwaypoint=nextwaypoint
         vehicle.mode = VehicleMode("AUTO")
    
-    if nextwaypoint==(numwaypts-1) or get_battery() < 40: #Dummy waypoint - as soon as we reach final waypoint this is true and we exit.
+    if nextwaypoint==(numwaypts-1): #Dummy waypoint - as soon as we reach final waypoint this is true and we exit.
         print("Exit 'Recon' mission and start heading to HOME location")
         break
     
-    time.sleep(3)
+    time.sleep(0.1)
 
 
 print('Return to launch')

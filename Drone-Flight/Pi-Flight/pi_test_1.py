@@ -7,16 +7,14 @@ from pymavlink import mavutil
 
 import argparse
 
-def connectToCopter():
-    parser = argparse.ArgumentParser(description='commands')
-    parser.add_argument('--connect')
-    args = parser.parse_args()
+parser = argparse.ArgumentParser(description='commands')
+parser.add_argument('--connect')
+args = parser.parse_args()
 
-    connection_string = args.connect
-    baud_rate = 57600
+connection_string = args.connect
+baud_rate = 57600
 
-    vehicle = connect(connection_string, baud = baud_rate, wait_ready=True)
-    return vehicle
+vehicle = connect(connection_string, baud = baud_rate, wait_ready=True)
 
 def arm():
     while vehicle.is_armable==False:

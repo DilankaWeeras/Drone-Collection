@@ -285,7 +285,7 @@ while True:
         time.sleep(7)
         #This is when RASPI CAMERA WILL TAKE VIDEO---
         vehicle.mode = VehicleMode("GUIDED")
-        set_velocity_body(0,-1,0)
+        set_velocity_body(0,1,0)
         time.sleep(2)
         vehicle.mode = VehicleMode("BRAKE")
         time.sleep(7)

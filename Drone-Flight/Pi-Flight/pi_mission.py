@@ -23,6 +23,7 @@ vehicle = connect(connection_string,baud = baud_rate, wait_ready=True)
 #Global Variables --
 full_altitude = 0
 full_yaw = 0
+camera = PiCamera()
 camera.rotation = 180
 camera.resolution = (1920,1080) #max is (2592,1944) for pic / (1920,1080) for vid at 15fps
 camera.framerate = 15

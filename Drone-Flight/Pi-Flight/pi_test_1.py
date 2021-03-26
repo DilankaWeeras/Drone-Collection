@@ -11,12 +11,12 @@ parser = argparse.ArgumentParser(description='commands')
 parser.add_argument('--connect')
 args = parser.parse_args()
 
-connection_string = args.connect
+connection_string = '/dev/ttyAMA0'
 baud_rate = 57600
 
 vehicle = connect(connection_string, baud = baud_rate, wait_ready=True)
 
-def arm():
+def arm_disarm():
     while vehicle.is_armable==False:
         print("Waiting for vehicle to initialise...")
         time.sleep(1)
@@ -28,12 +28,14 @@ def arm():
         print(" Waiting for arming...")
         time.sleep(1)
 
+    time.sleep(2)
+    vehicle.armed = False
+
     print("Vehicle is not armed.")
     return None
 
 #MAIN
 
-vehicle = connectToCopter()
-arm()
+arm_disarm()
 vehicle.armed = False()
 print("End of Script")

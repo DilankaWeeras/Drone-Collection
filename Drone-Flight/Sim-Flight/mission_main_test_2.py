@@ -6,25 +6,11 @@ from __future__ import print_function
 from dronekit import connect, VehicleMode, LocationGlobalRelative, LocationGlobal, Command
 import time
 import math
+import socket
+import exceptions
 from pymavlink import mavutil
 
-#Set up option parsing to get connection string
-import argparse  
-parser = argparse.ArgumentParser(description='Demonstrates basic mission operations.')
-parser.add_argument('--connect', 
-                   help="vehicle connection target string. If not specified, SITL automatically started and used.")
-args = parser.parse_args()
-
-connection_string = args.connect
-sitl = None
-
-# Connect to the Vehicle
-print('Connecting to vehicle on: %s' % connection_string)
-vehicle = connect(connection_string, wait_ready=True)
-
-#Global Variables --
-full_altitude = 0
-full_yaw = 0
+import argparse
 
 #PRINT METHODS
 def print_location():
@@ -122,29 +108,14 @@ def add_mission_point(aLatitude, aLongitude, aAltitude):
     cmds.add(Command( 0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0, 0, aLatitude, aLongitude, aAltitude))
     cmds.upload()
 
-def modify_misson_points(aLatitude, aLongitude, aAltitude):
-    cmds = vehicle.commands
-
-    missionlist=[]
-    for cmd in cmds:
-        missionlist.append(cmd)
-
-    # Clear the current mission (command is sent when we call upload())
-    cmds.clear()
-
-    Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0, 0, aLatitude, aLongitude, aAltitude)
-
-    #Write the modified mission and flush to the vehicle
-    for cmd in missionlist:
-        cmds.add(cmd)
-    cmds.upload()
-
 def read_add_waypoints():
     clear_drone_cmds()
 
     file_loc = open("locations.txt", "r")
 
     numwaypts = 0
+
+
     first = True
     for line in file_loc:
         line_split = line.split(',')
@@ -168,7 +139,7 @@ def read_add_waypoints():
     vehicle.commands.upload
     return numwaypts
 
-#TAKEOFF & LAND
+#DRONE CONTROL
 def arm_and_takeoff(aTargetAltitude):
     """
     Arms vehicle and fly to aTargetAltitude.
@@ -213,7 +184,6 @@ def land_vehilce():
     vehicle.close()
     '''
 
-#DRONE CONTROL
 def condition_yaw(heading = full_yaw, relative=False):
     if relative:
         is_relative=1 #yaw relative to direction of travel
@@ -246,73 +216,97 @@ def set_velocity_body(Vx, Vy, Vz):
     vehicle.flush()
     )
 
-#///MAIN MISSION///
+#-------------------------------------------------------------------#
+#-------------------------------------------------------------------#
 
-print('CLEAR OLD MISSION')
-clear_drone_cmds()
+def connectToCopter():
+    #Set up option parsing to get connection string  
+    parser = argparse.ArgumentParser(description='Demonstrates basic mission operations.')
+    parser.add_argument('--connect', 
+                    help="vehicle connection target string. If not specified, SITL automatically started and used.")
+    args = parser.parse_args()
 
-print('MISSION BEGIN')
-time.sleep(2)
+    connection_string = args.connect
+    sitl = None
 
-numwaypts = read_add_waypoints()
+    # Connect to the Vehicle
+    print('Connecting to vehicle on: %s' % connection_string)
+    vehicle = connect(connection_string, wait_ready=True)
+    return vehicle
 
-arm_and_takeoff(10)
+def main():
+    #Global Variables --
 
-print("Guiding Copter to mission points.")
-# Reset mission set to first (0) waypoint
-vehicle.commands.next=0
+    vehcile = connectToCopter()
 
-# Set mode to AUTO to start mission
-vehicle.mode = VehicleMode("AUTO")
+    full_altitude = 0
+    full_yaw = 0
 
-# Monitor mission. 
-# Demonstrates getting and setting the command number 
-# Uses distance_to_current_waypoint(), a convenience function for finding the 
-#   distance to the next waypoint.
+    print('CLEAR OLD MISSION')
+    clear_drone_cmds()
 
-currentwaypoint=vehicle.commands.next
+    print('MISSION BEGIN')
+    time.sleep(2)
 
-while True:
-    nextwaypoint=vehicle.commands.next
-    print('Distance to waypoint (%s): %s' % (nextwaypoint, distance_to_current_waypoint()))
-    print('Battery Level (%s)'%(get_battery()))
-    
-    if currentwaypoint!=nextwaypoint:
-        print("Stablize Motor for Video")
-        vehicle.mode = VehicleMode("GUIDED")
-        condition_yaw(full_yaw)
-        time.sleep(5)
-        vehicle.mode = VehicleMode("BRAKE")
-        time.sleep(7)
-        #This is when RASPI CAMERA WILL TAKE VIDEO---
-        vehicle.mode = VehicleMode("GUIDED")
-        set_velocity_body(0,-1,0)
-        time.sleep(2)
-        vehicle.mode = VehicleMode("BRAKE")
-        time.sleep(7)
-        print("Video recorded")
-        currentwaypoint=nextwaypoint
-        vehicle.mode = VehicleMode("AUTO")
+    numwaypts = read_add_waypoints()
 
-    if get_battery() <= 40:
-        print("Exit! Warning - Low Battery")
-    
-    if nextwaypoint==(numwaypts-1) or get_battery() < 40: #Dummy waypoint - as soon as we reach final waypoint this is true and we exit.
-        print("Exit 'Recon' mission and start heading to HOME location")
-        break
-    time.sleep(3)
+    arm_and_takeoff(10)
+
+    print("Guiding Copter to mission points.")
+    # Reset mission set to first (0) waypoint
+    vehicle.commands.next=0
+
+    # Set mode to AUTO to start mission
+    vehicle.mode = VehicleMode("AUTO")
+
+    # Monitor mission. 
+    # Demonstrates getting and setting the command number 
+    # Uses distance_to_current_waypoint(), a convenience function for finding the 
+    #   distance to the next waypoint.
+
+    currentwaypoint=vehicle.commands.next
+
+    while True:
+        nextwaypoint=vehicle.commands.next
+        print('Distance to waypoint (%s): %s' % (nextwaypoint, distance_to_current_waypoint()))
+        print('Battery Level (%s)'%(get_battery()))
+        
+        if currentwaypoint!=nextwaypoint:
+            print("Stablize Motor for Video")
+            vehicle.mode = VehicleMode("GUIDED")
+            condition_yaw(full_yaw)
+            time.sleep(5)
+            vehicle.mode = VehicleMode("BRAKE")
+            time.sleep(7)
+            #This is when RASPI CAMERA WILL TAKE VIDEO---
+            print("Video recorded")
+            currentwaypoint=nextwaypoint
+            vehicle.mode = VehicleMode("AUTO")
+
+        if get_battery() <= 40:
+            print("Exit! Warning - Low Battery")
+        
+        if nextwaypoint==(numwaypts-1) or get_battery() < 40: #Dummy waypoint - as soon as we reach final waypoint this is true and we exit.
+            print("Exit 'Recon' mission and start heading to HOME location")
+            break
+        time.sleep(3)
 
 
-print('Return to launch')
-vehicle.mode = VehicleMode("RTL")
+    print('Return to launch')
+    vehicle.mode = VehicleMode("RTL")
 
-while vehicle.location.global_relative_frame.alt > 1:
-    print('Battery Level (%s)\nImmediate Land @ (25)'%(get_battery()))
-    if get_battery() < 25:
-        land_vehilce()
-        break
-    time.sleep(3)
+    while vehicle.location.global_relative_frame.alt > 1:
+        print('Battery Level (%s)\nImmediate Land @ (25)'%(get_battery()))
+        if get_battery() < 25:
+            land_vehilce()
+            break
+        time.sleep(3)
 
-#Close vehicle object before exiting script
-print("Close vehicle object")
-vehicle.close()
+    #Close vehicle object before exiting script
+    print("Close vehicle object")
+    vehicle.close()
+
+#---RUNNING---#
+#---MISSION---#
+
+main()

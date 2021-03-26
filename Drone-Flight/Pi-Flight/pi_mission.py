@@ -8,6 +8,8 @@ import time
 import math
 from pymavlink import mavutil
 
+from picamera import PiCamera, Color
+
 #Set up option parsing to get connection string
 
 connection_string = '/dev/ttyAMA0'
@@ -21,6 +23,9 @@ vehicle = connect(connection_string,baud = baud_rate, wait_ready=True)
 #Global Variables --
 full_altitude = 0
 full_yaw = 0
+camera.rotation = 180
+camera.resolution = (1920,1080) #max is (2592,1944) for pic / (1920,1080) for vid at 15fps
+camera.framerate = 15
 
 #PRINT METHODS
 def print_location():
@@ -250,11 +255,21 @@ vehicle.mode = VehicleMode("AUTO")
 # Monitor mission. 
 # Demonstrates getting and setting the command number 
 # Uses distance_to_current_waypoint(), a convenience function for finding the 
-#   distance to the next waypoint.
+# distance to the next waypoint.
 
 currentwaypoint=vehicle.commands.next
 
 while True:
+
+    #Video Transmission Increments BEGIN
+
+    rows = 0
+    cols = 0
+
+    video_number = 1
+    video_name = ""
+    #Video Transmission Increments END
+
     nextwaypoint=vehicle.commands.next
     print('Distance to waypoint (%s): %s' % (nextwaypoint, distance_to_current_waypoint()))
     print('Battery Level (%s)'%(get_battery()))
@@ -265,8 +280,23 @@ while True:
         condition_yaw(full_yaw)
         time.sleep(5)
         vehicle.mode = VehicleMode("BRAKE")
-        time.sleep(7)
-        #This is when RASPI CAMERA WILL TAKE VIDEO---
+        time.sleep(1)
+        
+        # This is when RASPI CAMERA WILL TAKE VIDEO---
+
+        if (video_number % 2) == 0:
+            video_name = video_number + 'l'
+        else:
+            video_name = video_number + 'r'
+
+        camera.start_preview()
+        time.sleep(2)
+        camera.start_recording('/home/pi/Videos/' + video_name + '.h264')
+        time.sleep(5)
+        camera.stop_recording()
+        camera.stop_preview()
+
+        # Raspi End Video
         print("Video recorded")
         currentwaypoint=nextwaypoint
         vehicle.mode = VehicleMode("AUTO")
@@ -274,6 +304,7 @@ while True:
     if nextwaypoint==(numwaypts-1) or get_battery() < 40: #Dummy waypoint - as soon as we reach final waypoint this is true and we exit.
         print("Exit 'Recon' mission and start heading to HOME location")
         break
+    
     time.sleep(3)
 
 

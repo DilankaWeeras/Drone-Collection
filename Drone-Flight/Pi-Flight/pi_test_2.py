@@ -5,6 +5,8 @@ import time
 import math
 from pymavlink import mavutil
 
+from picamera import PiCamera, Color
+
 import argparse
 
 parser = argparse.ArgumentParser(description='commands')

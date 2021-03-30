@@ -293,10 +293,10 @@ while True:
 
         camera.start_preview()
         time.sleep(2)
-        camera.start_recording('/home/pi/Videos/' + video_number + 'l.h264')
+        camera.start_recording('/home/pi/Videos/' + str(video_number) + 'l.h264')
         time.sleep(2)
         camera.stop_recording()
-        camera.capture('/home/pi/Pictures/'+ video_number +'l.jpg')
+        camera.capture('/home/pi/Pictures/'+ str(video_number) +'l.jpg')
         camera.stop_preview()
 
         vehicle.mode = VehicleMode("GUIDED")
@@ -306,10 +306,10 @@ while True:
 
         camera.start_preview()
         time.sleep(2)
-        camera.start_recording('/home/pi/Videos/' + video_number + 'r.h264')
+        camera.start_recording('/home/pi/Videos/' + str(video_number) + 'r.h264')
         time.sleep(2)
         camera.stop_recording()
-        camera.capture('/home/pi/Pictures/'+ video_number +'r.jpg')
+        camera.capture('/home/pi/Pictures/'+ str(video_number) +'r.jpg')
         camera.stop_preview()
 
         # Raspi End Video

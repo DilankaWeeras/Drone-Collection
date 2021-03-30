@@ -70,7 +70,11 @@ def set_velocity_body(Vx, Vy, Vz):
     vehicle.flush()
 #MAIN
 
-arm_and_takeoff()
+arm_and_takeoff(10)
+
+vehicle.mode = VehicleMode("GUIDED")
+
+time.sleep(10)
 
 camera.start_preview()
 time.sleep(2)
@@ -92,4 +96,11 @@ time.sleep(2)
 camera.stop_recording()
 camera.capture('/home/pi/Pictures/'+ 'test2' +'r.jpg')
 
+vehicle.mode = VehicleMode("GUIDED")
+set_velocity_body(0,-1,0)
+time.sleep(4)
+vehicle.mode = VehicleMode("BRAKE")
+
+
+vehicle.mode = VehicleMode("LAND")
 print("End of Script")

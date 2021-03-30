@@ -19,7 +19,7 @@ baud_rate = 57600
 vehicle = connect(connection_string, baud = baud_rate, wait_ready=True)
 
 camera = PiCamera()
-camera.rotation = 180
+camera.rotation = 0
 camera.resolution = (1920,1080) #max is (2592,1944) for pic / (1920,1080) for vid at 15fps
 camera.framerate = 15
 

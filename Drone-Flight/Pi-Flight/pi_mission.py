@@ -171,6 +171,19 @@ def read_add_waypoints():
     vehicle.commands.upload
     return numwaypts
 
+def read_add_waypoints():
+    clear_drone_cmds()
+
+    file_loc = open("locations.txt","r")
+
+    numwpts = 0
+    line_split = file_loc[0].split(',')
+    
+
+
+    return numwaypts
+
+
 #TAKEOFF & LAND
 def arm_and_takeoff(aTargetAltitude):
     """

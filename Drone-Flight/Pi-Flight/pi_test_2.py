@@ -16,12 +16,14 @@ args = parser.parse_args()
 connection_string = '/dev/ttyAMA0'
 baud_rate = 57600
 
-vehicle = connect(connection_string, baud = baud_rate, wait_ready=True)
+vehicle = connect(connection_string, baud=baud_rate, wait_ready=True)
 
 camera = PiCamera()
 camera.rotation = 0
-camera.resolution = (1920,1080) #max is (2592,1944) for pic / (1920,1080) for vid at 15fps
+# max is (2592,1944) for pic / (1920,1080) for vid at 15fps
+camera.resolution = (1920, 1080)
 camera.framerate = 15
+
 
 def arm_and_takeoff(aTargetAltitude):
     """
@@ -34,75 +36,74 @@ def arm_and_takeoff(aTargetAltitude):
         print(" Waiting for vehicle to initialise...")
         time.sleep(1)
 
-        
     print("Arming motors")
     # Copter should arm in GUIDED mode
     vehicle.mode = VehicleMode("GUIDED")
     vehicle.armed = True
 
-    while not vehicle.armed:      
+    while not vehicle.armed:
         print(" Waiting for arming...")
         time.sleep(1)
 
     print("Taking off!")
-    vehicle.simple_takeoff(aTargetAltitude) # Take off to target altitude
+    vehicle.simple_takeoff(aTargetAltitude)  # Take off to target altitude
 
-    # Wait until the vehicle reaches a safe height before processing the goto (otherwise the command 
+    # Wait until the vehicle reaches a safe height before processing the goto (otherwise the command
     #  after Vehicle.simple_takeoff will execute immediately).
     while True:
-        print(" Altitude: ", vehicle.location.global_relative_frame.alt)      
-        if vehicle.location.global_relative_frame.alt>=aTargetAltitude*0.95: #Trigger just below target alt.
+        print(" Altitude: ", vehicle.location.global_relative_frame.alt)
+        # Trigger just below target alt.
+        if vehicle.location.global_relative_frame.alt >= aTargetAltitude*0.95:
             print("Reached target altitude")
             break
         time.sleep(1)
 
+
 def set_velocity_body(Vx, Vy, Vz):
     msg = vehicle.message_factory.set_position_target_local_ned_encode(
         0,
-        0,0,
+        0, 0,
         mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED,
         0b0000111111000111,
-        0,0,0,
-        Vx,Vy,Vz,
-        0,0,0,
-        0,0)
+        0, 0, 0,
+        Vx, Vy, Vz,
+        0, 0, 0,
+        0, 0)
     vehicle.send_mavlink(msg)
     vehicle.flush()
-#MAIN
+# MAIN
+
 
 try:
     arm_and_takeoff(10)
 
     vehicle.mode = VehicleMode("GUIDED")
 
-    time.sleep(10)
+    time.sleep(2)
 
     camera.start_preview()
 
-    time.sleep(2)
-    for x in range(1,5)
-        camera.capture('/home/pi/Pictures/0_0_l' + x +'.jpg')
-
+    time.sleep(3)
+    for x in range(1, 6):
+        camera.capture('/home/pi/Pictures/test2/0_0_r' + str(x) + '.jpg')
     camera.stop_preview()
 
     vehicle.mode = VehicleMode("GUIDED")
-    set_velocity_body(0,1,0)
+    set_velocity_body(0, 1, 0)
     time.sleep(0.5)
     vehicle.mode = VehicleMode("BRAKE")
 
     camera.start_preview()
 
-    time.sleep(2)
-    for x in range(1,5)
-        camera.capture('/home/pi/Pictures/0_0_r' + x +'.jpg')
-
+    time.sleep(3)
+    for x in range(1, 6):
+        camera.capture('/home/pi/Pictures/test2/0_0_r' + str(x) + '.jpg')
     camera.stop_preview()
 
     vehicle.mode = VehicleMode("GUIDED")
-    set_velocity_body(0,-1,0)
+    set_velocity_body(0, -1, 0)
     time.sleep(4)
     vehicle.mode = VehicleMode("BRAKE")
-
 
     vehicle.mode = VehicleMode("LAND")
     print("End of Script")

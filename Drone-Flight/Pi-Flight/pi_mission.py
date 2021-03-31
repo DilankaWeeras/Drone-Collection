@@ -10,7 +10,7 @@ from pymavlink import mavutil
 
 from picamera import PiCamera, Color
 
-#Set up option parsing to get connection string
+# Set up option parsing to get connection string
 
 connection_string = '/dev/ttyAMA0'
 baud_rate = 57600
@@ -18,59 +18,68 @@ sitl = None
 
 # Connect to the Vehicle
 print('Connecting to vehicle on: %s' % connection_string)
-vehicle = connect(connection_string,baud = baud_rate, wait_ready=True)
+vehicle = connect(connection_string, baud=baud_rate, wait_ready=True)
 
-#Global Variables --
+# Global Variables --
 full_altitude = 0
 full_yaw = 0
 camera = PiCamera()
 camera.rotation = 180
-camera.resolution = (1920,1080) #max is (2592,1944) for pic / (1920,1080) for vid at 15fps
+# max is (2592,1944) for pic / (1920,1080) for vid at 15fps
+camera.resolution = (1920, 1080)
 camera.framerate = 15
 video_number = 0
 
-#PRINT METHODS
+# PRINT METHODS
+
+
 def print_location():
     """
     prints out the current location of the drone to the terminal
     returns a string of the current location of the drone
     """
     original_location = vehicle.location.global_frame
-    printout = "Location: Lat(" + original_location.lat + ") Lon(" + original_location.lon + ") Alt(" + original_location.alt + ")"
+    printout = "Location: Lat(" + original_location.lat + ") Lon(" + \
+        original_location.lon + ") Alt(" + original_location.alt + ")"
     #print('Location: Lat(%s) Lon(%s) Alt(%s)'%(original_location.lat, original_location.lon, original_location.alt))
     print(printout)
     return printout
 
-def print_next_wp(nextwp):    
-    missionitem=vehicle.commands[nextwp-1] #commands are zero indexed
+
+def print_next_wp(nextwp):
+    missionitem = vehicle.commands[nextwp-1]  # commands are zero indexed
     lat = missionitem.x
     lon = missionitem.y
     alt = missionitem.z
-    print('Waypoint (%s)(%s)(%s)'% (lat,lon,alt))
+    print('Waypoint (%s)(%s)(%s)' % (lat, lon, alt))
+
 
 def get_battery():
     battery_str = str(vehicle.battery)
     percent = battery_str[battery_str.find('level=')+6:len(battery_str)]
     percent_int = int(percent)
-    #print(percent_int)
+    # print(percent_int)
     return percent_int
 
-#LOCATION METHODS
+# LOCATION METHODS
+
+
 def get_location_metres(original_location, dNorth, dEast):
     """
     Returns a LocationGlobal object containing the latitude/longitude `dNorth` and `dEast` metres from the 
     specified `original_location`. The returned Location has the same `alt` value
     as `original_location`.
     """
-    earth_radius=6378137.0 #Radius of "spherical" earth
-    #Coordinate offsets in radians
+    earth_radius = 6378137.0  # Radius of "spherical" earth
+    # Coordinate offsets in radians
     dLat = dNorth/earth_radius
     dLon = dEast/(earth_radius*math.cos(math.pi*original_location.lat/180))
 
-    #New position in decimal degrees
+    # New position in decimal degrees
     newlat = original_location.lat + (dLat * 180/math.pi)
     newlon = original_location.lon + (dLon * 180/math.pi)
-    return LocationGlobal(newlat, newlon,original_location.alt)
+    return LocationGlobal(newlat, newlon, original_location.alt)
+
 
 def get_distance_metres(aLocation1, aLocation2):
     """
@@ -80,30 +89,35 @@ def get_distance_metres(aLocation1, aLocation2):
     dlong = aLocation2.lon - aLocation1.lon
     return math.sqrt((dlat*dlat) + (dlong*dlong)) * 1.113195e5
 
+
 def distance_to_current_waypoint():
     """
     Gets distance in metres to the current waypoint. 
     It returns None for the first waypoint (Home location).
     """
     nextwaypoint = vehicle.commands.next
-    if nextwaypoint==0:
+    if nextwaypoint == 0:
         return None
-    missionitem=vehicle.commands[nextwaypoint-1] #commands are zero indexed
+    missionitem = vehicle.commands[nextwaypoint-1]  # commands are zero indexed
     lat = missionitem.x
     lon = missionitem.y
     alt = missionitem.z
-    targetWaypointLocation = LocationGlobalRelative(lat,lon,alt)
-    distancetopoint = get_distance_metres(vehicle.location.global_frame, targetWaypointLocation)
+    targetWaypointLocation = LocationGlobalRelative(lat, lon, alt)
+    distancetopoint = get_distance_metres(
+        vehicle.location.global_frame, targetWaypointLocation)
     return distancetopoint
 
-#MISSION METHODS
+# MISSION METHODS
+
+
 def download_mission():
     """
     Download the current mission from the vehicle.
     """
     cmds = vehicle.commands
     cmds.download()
-    cmds.wait_ready() # wait until download is complete.
+    cmds.wait_ready()  # wait until download is complete.
+
 
 def clear_drone_cmds():
     cmds = vehicle.commands
@@ -112,6 +126,7 @@ def clear_drone_cmds():
     cmds.upload()
     print("Commands cleared.")
 
+
 def add_mission_point(aLatitude, aLongitude, aAltitude):
     '''
     Adds a point that to the mission that the drone will travel to.
@@ -119,28 +134,32 @@ def add_mission_point(aLatitude, aLongitude, aAltitude):
     '''
 
     cmds = vehicle.commands
-    
-    #Defines the new waypoint to be added.
-    print('Adding waypoint @ (%s, %s)' % (aLatitude,aLongitude))
-    cmds.add(Command( 0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0, 0, aLatitude, aLongitude, aAltitude))
+
+    # Defines the new waypoint to be added.
+    print('Adding waypoint @ (%s, %s)' % (aLatitude, aLongitude))
+    cmds.add(Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+             mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0, 0, aLatitude, aLongitude, aAltitude))
     cmds.upload()
+
 
 def modify_misson_points(aLatitude, aLongitude, aAltitude):
     cmds = vehicle.commands
 
-    missionlist=[]
+    missionlist = []
     for cmd in cmds:
         missionlist.append(cmd)
 
     # Clear the current mission (command is sent when we call upload())
     cmds.clear()
 
-    Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0, 0, aLatitude, aLongitude, aAltitude)
+    Command(0, 0, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+            mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0, 0, aLatitude, aLongitude, aAltitude)
 
-    #Write the modified mission and flush to the vehicle
+    # Write the modified mission and flush to the vehicle
     for cmd in missionlist:
         cmds.add(cmd)
     cmds.upload()
+
 
 def read_add_waypoints():
     clear_drone_cmds()
@@ -156,12 +175,12 @@ def read_add_waypoints():
             full_altitude = float(line_split[0])
             full_yaw = float(line_split[1])
             first = False
-        else: 
+        else:
             aLatitude = float(line_split[0])
             aLongitude = float(line_split[1])
             aAltitude = float(10)
             add_mission_point(aLatitude, aLongitude, full_altitude)
-            numwaypts=numwaypts+1
+            numwaypts = numwaypts+1
 
         if 'str' in line:
             break
@@ -171,15 +190,14 @@ def read_add_waypoints():
     vehicle.commands.upload
     return numwaypts
 
+
 def read_add_waypoints():
     clear_drone_cmds()
 
-    file_loc = open("locations.txt","r")
+    file_loc = open("locations.txt", "r")
 
     numwpts = 0
     line_split = file_loc[0].split(',')
-    
-
 
     return numwaypts
 
@@ -196,27 +214,28 @@ def arm_and_takeoff(aTargetAltitude):
         print(" Waiting for vehicle to initialise...")
         time.sleep(1)
 
-        
     print("Arming motors")
     # Copter should arm in GUIDED mode
     vehicle.mode = VehicleMode("GUIDED")
     vehicle.armed = True
 
-    while not vehicle.armed:      
+    while not vehicle.armed:
         print(" Waiting for arming...")
         time.sleep(1)
 
     print("Taking off!")
-    vehicle.simple_takeoff(aTargetAltitude) # Take off to target altitude
+    vehicle.simple_takeoff(aTargetAltitude)  # Take off to target altitude
 
-    # Wait until the vehicle reaches a safe height before processing the goto (otherwise the command 
+    # Wait until the vehicle reaches a safe height before processing the goto (otherwise the command
     #  after Vehicle.simple_takeoff will execute immediately).
     while True:
-        print(" Altitude: ", vehicle.location.global_relative_frame.alt)      
-        if vehicle.location.global_relative_frame.alt>=aTargetAltitude*0.95: #Trigger just below target alt.
+        print(" Altitude: ", vehicle.location.global_relative_frame.alt)
+        # Trigger just below target alt.
+        if vehicle.location.global_relative_frame.alt >= aTargetAltitude*0.95:
             print("Reached target altitude")
             break
         time.sleep(1)
+
 
 def land_vehilce():
     print("Vehicle in LAND mode")
@@ -229,39 +248,43 @@ def land_vehilce():
     vehicle.close()
     '''
 
-#DRONE CONTROL
-def condition_yaw(heading = full_yaw, relative=False):
+# DRONE CONTROL
+
+
+def condition_yaw(heading=full_yaw, relative=False):
     if relative:
-        is_relative=1 #yaw relative to direction of travel
+        is_relative = 1  # yaw relative to direction of travel
     else:
-        is_relative=0 #yaw is an absolute angle
+        is_relative = 0  # yaw is an absolute angle
     # create the CONDITION_YAW command using command_long_encode()
     msg = vehicle.message_factory.command_long_encode(
         0, 0,    # target system, target component
-        mavutil.mavlink.MAV_CMD_CONDITION_YAW, #command
-        0, #confirmation
+        mavutil.mavlink.MAV_CMD_CONDITION_YAW,  # command
+        0,  # confirmation
         heading,    # param 1, yaw in degrees
         0,          # param 2, yaw speed deg/s
         1,          # param 3, direction -1 ccw, 1 cw
-        is_relative, # param 4, relative offset 1, absolute angle 0
+        is_relative,  # param 4, relative offset 1, absolute angle 0
         0, 0, 0)    # param 5 ~ 7 not used
     # send command to vehicle
     vehicle.send_mavlink(msg)
 
+
 def set_velocity_body(Vx, Vy, Vz):
     msg = vehicle.message_factory.set_position_target_local_ned_encode(
         0,
-        0,0,
+        0, 0,
         mavutil.mavlink.MAV_FRAME_BODY_OFFSET_NED,
         0b0000111111000111,
-        0,0,0,
-        Vx,Vy,Vz,
-        0,0,0,
-        0,0)
+        0, 0, 0,
+        Vx, Vy, Vz,
+        0, 0, 0,
+        0, 0)
     vehicle.send_mavlink(msg)
     vehicle.flush()
 
-#///MAIN MISSION///
+# ///MAIN MISSION///
+
 
 print('CLEAR OLD MISSION')
 clear_drone_cmds()
@@ -275,28 +298,29 @@ arm_and_takeoff(10)
 
 print("Guiding Copter to mission points.")
 # Reset mission set to first (0) waypoint
-vehicle.commands.next=0
+vehicle.commands.next = 0
 
 # Set mode to AUTO to start mission
 vehicle.mode = VehicleMode("AUTO")
 
-# Monitor mission. 
-# Demonstrates getting and setting the command number 
-# Uses distance_to_current_waypoint(), a convenience function for finding the 
+# Monitor mission.
+# Demonstrates getting and setting the command number
+# Uses distance_to_current_waypoint(), a convenience function for finding the
 # distance to the next waypoint.
 
-currentwaypoint=vehicle.commands.next
+currentwaypoint = vehicle.commands.next
 
 while True:
 
-    #Video Transmission Increments BEGIN
+    # Video Transmission Increments BEGIN
     video_number = video_number + 1
-    #Video Transmission Increments END
+    # Video Transmission Increments END
 
-    nextwaypoint=vehicle.commands.next
-    print('Distance to waypoint (%s): %s' % (nextwaypoint, distance_to_current_waypoint()))
-    
-    if currentwaypoint!=nextwaypoint:
+    nextwaypoint = vehicle.commands.next
+    print('Distance to waypoint (%s): %s' %
+          (nextwaypoint, distance_to_current_waypoint()))
+
+    if currentwaypoint != nextwaypoint:
         print("Stablize Motor for Video")
         vehicle.mode = VehicleMode("GUIDED")
         condition_yaw(full_yaw)
@@ -306,39 +330,42 @@ while True:
 
         camera.start_preview()
         time.sleep(2)
-        camera.start_recording('/home/pi/Videos/' + str(video_number) + 'l.h264')
+        camera.start_recording('/home/pi/Videos/' +
+                               str(video_number) + 'l.h264')
         time.sleep(2)
         camera.stop_recording()
-        camera.capture('/home/pi/Pictures/'+ str(video_number) +'l.jpg')
+        camera.capture('/home/pi/Pictures/' + str(video_number) + 'l.jpg')
         camera.stop_preview()
 
         vehicle.mode = VehicleMode("GUIDED")
-        set_velocity_body(0,1,0)
+        set_velocity_body(0, 1, 0)
         time.sleep(2)
         vehicle.mode = VehicleMode("BRAKE")
 
         camera.start_preview()
         time.sleep(2)
-        camera.start_recording('/home/pi/Videos/' + str(video_number) + 'r.h264')
+        camera.start_recording('/home/pi/Videos/' +
+                               str(video_number) + 'r.h264')
         time.sleep(2)
         camera.stop_recording()
-        camera.capture('/home/pi/Pictures/'+ str(video_number) +'r.jpg')
+        camera.capture('/home/pi/Pictures/' + str(video_number) + 'r.jpg')
         camera.stop_preview()
 
         # Raspi End Video
         print("Video recorded")
 
-        #Video Transmission Increments BEGIN
+        # Video Transmission Increments BEGIN
         video_number = video_number + 1
-        #Video Transmission Increments END
+        # Video Transmission Increments END
 
-        currentwaypoint=nextwaypoint
+        currentwaypoint = nextwaypoint
         vehicle.mode = VehicleMode("AUTO")
-   
-    if nextwaypoint==(numwaypts-1): #Dummy waypoint - as soon as we reach final waypoint this is true and we exit.
+
+    # Dummy waypoint - as soon as we reach final waypoint this is true and we exit.
+    if nextwaypoint == (numwaypts-1):
         print("Exit 'Recon' mission and start heading to HOME location")
         break
-    
+
     time.sleep(0.1)
 
 
@@ -348,7 +375,7 @@ vehicle.mode = VehicleMode("RTL")
 while vehicle.location.global_relative_frame.alt > 1:
     '''
     print('Battery Level (%s)\nImmediate Land @ (25)'%(get_battery()))
-    
+
     if get_battery() < 25:
         land_vehilce()
         break
@@ -356,6 +383,6 @@ while vehicle.location.global_relative_frame.alt > 1:
     print("Returning to Home Location.")
     time.sleep(3)
 
-#Close vehicle object before exiting script
+# Close vehicle object before exiting script
 print("Close vehicle object")
 vehicle.close()

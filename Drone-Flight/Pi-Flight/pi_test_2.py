@@ -70,37 +70,42 @@ def set_velocity_body(Vx, Vy, Vz):
     vehicle.flush()
 #MAIN
 
-arm_and_takeoff(10)
+try:
+    arm_and_takeoff(10)
 
-vehicle.mode = VehicleMode("GUIDED")
+    vehicle.mode = VehicleMode("GUIDED")
 
-time.sleep(10)
+    time.sleep(10)
 
-camera.start_preview()
-time.sleep(2)
-camera.start_recording('/home/pi/Videos/' + 'test2' + 'l.h264')
-time.sleep(2)
-camera.stop_recording()
-camera.capture('/home/pi/Pictures/'+ 'test2' +'l.jpg')
-camera.stop_preview()
+    camera.start_preview()
 
-vehicle.mode = VehicleMode("GUIDED")
-set_velocity_body(0,1,0)
-time.sleep(2)
-vehicle.mode = VehicleMode("BRAKE")
+    time.sleep(2)
+    for x in range(1,5)
+        camera.capture('/home/pi/Pictures/0_0_l' + x +'.jpg')
 
-camera.start_preview()
-time.sleep(2)
-camera.start_recording('/home/pi/Videos/' + 'test2' + 'r.h264')
-time.sleep(2)
-camera.stop_recording()
-camera.capture('/home/pi/Pictures/'+ 'test2' +'r.jpg')
+    camera.stop_preview()
 
-vehicle.mode = VehicleMode("GUIDED")
-set_velocity_body(0,-1,0)
-time.sleep(4)
-vehicle.mode = VehicleMode("BRAKE")
+    vehicle.mode = VehicleMode("GUIDED")
+    set_velocity_body(0,1,0)
+    time.sleep(0.5)
+    vehicle.mode = VehicleMode("BRAKE")
+
+    camera.start_preview()
+
+    time.sleep(2)
+    for x in range(1,5)
+        camera.capture('/home/pi/Pictures/0_0_r' + x +'.jpg')
+
+    camera.stop_preview()
+
+    vehicle.mode = VehicleMode("GUIDED")
+    set_velocity_body(0,-1,0)
+    time.sleep(4)
+    vehicle.mode = VehicleMode("BRAKE")
 
 
-vehicle.mode = VehicleMode("LAND")
-print("End of Script")
+    vehicle.mode = VehicleMode("LAND")
+    print("End of Script")
+except:
+    print("Unexpected error: Landing")
+    vehicle.mode = VehicleMode("LAND")

@@ -5,7 +5,7 @@ import time
 import math
 from pymavlink import mavutil
 
-from picamera import PiCamera, Color
+#from picamera import PiCamera, Color
 
 import argparse
 
@@ -101,9 +101,13 @@ def read_add_waypoints():
     line_split = file_loc[0].split(',')
     full_altitude = line_split[0]
     full_yaw = line_split[1]
+    print("Altitude = %d", full_altitude)
+    print("Yaw = %d", full_yaw)
     line_split = file_loc[1].split(',')
     rows = line_split[0]
     cols = line_split[1]
+    print("Rows = %d", rows)
+    print("Colums = %d", cols)
 
     for line in file_loc[2:]:
         mission_pts.append(line)

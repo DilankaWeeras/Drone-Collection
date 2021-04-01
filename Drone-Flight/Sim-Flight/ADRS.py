@@ -97,7 +97,9 @@ def clear_drone_cmds():
 def read_add_waypoints():
     clear_drone_cmds()
 
+    print("Opening Locations")
     file_loc = open('locations.txt', 'r')
+    
     line_split = file_loc[0].split(',')
     full_altitude = line_split[0]
     full_yaw = line_split[1]

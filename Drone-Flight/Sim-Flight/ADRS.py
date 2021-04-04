@@ -129,24 +129,24 @@ def arm_and_takeoff(aTargetAltitude):
         print(" Waiting for vehicle to initialise...")
         time.sleep(1)
 
+        
     print("Arming motors")
     # Copter should arm in GUIDED mode
     vehicle.mode = VehicleMode("GUIDED")
     vehicle.armed = True
 
-    while not vehicle.armed:
+    while not vehicle.armed:      
         print(" Waiting for arming...")
         time.sleep(1)
 
     print("Taking off!")
-    vehicle.simple_takeoff(aTargetAltitude)  # Take off to target altitude
+    vehicle.simple_takeoff(aTargetAltitude) # Take off to target altitude
 
-    # Wait until the vehicle reaches a safe height before processing the goto (otherwise the command
+    # Wait until the vehicle reaches a safe height before processing the goto (otherwise the command 
     #  after Vehicle.simple_takeoff will execute immediately).
     while True:
-        print(" Altitude: ", vehicle.location.global_relative_frame.alt)
-        # Trigger just below target alt.
-        if vehicle.location.global_relative_frame.alt >= aTargetAltitude*0.95:
+        print(" Altitude: ", vehicle.location.global_relative_frame.alt)      
+        if vehicle.location.global_relative_frame.alt>=aTargetAltitude*0.95: #Trigger just below target alt.
             print("Reached target altitude")
             break
         time.sleep(1)
@@ -200,7 +200,7 @@ def take_pictures(x, y):
 
 try:
     read_add_waypoints()
-    arm_and_takeoff(full_altitude)
+    arm_and_takeoff(10)
     print("TEST")
     home = vehicle.location.global_frame
     print("TEST")

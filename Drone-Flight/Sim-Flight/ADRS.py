@@ -206,7 +206,7 @@ def take_pictures(x, y):
 # MAIN
 
 
-try:3
+try:
     read_add_waypoints()
     arm_and_takeoff(int(full_altitude))
     home = vehicle.location.global_frame

@@ -70,20 +70,14 @@ def get_distance_metres(aLocation1, aLocation2):
     dlong = aLocation2.lon - aLocation1.lon
     return math.sqrt((dlat*dlat) + (dlong*dlong)) * 1.113195e5
 
-def distance_to_current_waypoint():
+def distance_to_current_waypoint(lat, lon, alt):
     """
     Gets distance in metres to the current waypoint. 
     It returns None for the first waypoint (Home location).
     """
-    nextwaypoint = vehicle.commands.next
-    if nextwaypoint==0:
-        return None
-    missionitem=vehicle.commands[nextwaypoint-1] #commands are zero indexed
-    lat = missionitem.x
-    lon = missionitem.y
-    alt = missionitem.z
     targetWaypointLocation = LocationGlobalRelative(lat,lon,alt)
     distancetopoint = get_distance_metres(vehicle.location.global_frame, targetWaypointLocation)
+    print(distancetopoint)
     return distancetopoint
 
 #MISSION
@@ -169,7 +163,7 @@ def set_velocity_body(Vx, Vy, Vz):
         0, 0, 0,
         0, 0)
     vehicle.send_mavlink(msg)
-    #vehicle.flush()
+    vehicle.flush()
 
 #CAMERA#
 def take_pictures(x, y):
@@ -206,10 +200,32 @@ def take_pictures(x, y):
 
 try:
     read_add_waypoints()
+    arm_and_takeoff(full_altitude)
+    home = vehicle.location.global_frame
+    print_location()
+    r = 0
+    c = 0
+    for wp in mission_pts:
+        print("Going to Point:" + str(r) + "_" +str(c))
+        print("Going to location" + str(wp[0]) + str(wp[1]))
+        point = Location(wp[0], wp[1], full_altitude, is_relative=True)
+        vehicle.commands.goto(point)
+        vehicle.flush()
 
+        while distance_to_current_waypoint(wp[0], wp[1], full_altitude) > 0.5:
+            time.sleep(0.5)
 
+        take_pictures()
 
-    
+        c = c+1
+        if c = cols:
+            r = r+1
+            c = 0
+        if r = rows:
+            break
+    time.sleep(1)
+    print("Going Home...")
+    vehicle.commands.goto(home)
 except:
     print("Unexpected error: Landing")
     vehicle.mode = VehicleMode("LAND")

@@ -160,6 +160,24 @@ def arm_and_takeoff(aTargetAltitude):
         time.sleep(1)
 
 #DRONE CONTROL# #MAVLINK#
+def condition_yaw(heading = full_yaw, relative=False):
+    if relative:
+        is_relative=1 #yaw relative to direction of travel
+    else:
+        is_relative=0 #yaw is an absolute angle
+    # create the CONDITION_YAW command using command_long_encode()
+    msg = vehicle.message_factory.command_long_encode(
+        0, 0,    # target system, target component
+        mavutil.mavlink.MAV_CMD_CONDITION_YAW, #command
+        0, #confirmation
+        heading,    # param 1, yaw in degrees
+        0,          # param 2, yaw speed deg/s
+        1,          # param 3, direction -1 ccw, 1 cw
+        is_relative, # param 4, relative offset 1, absolute angle 0
+        0, 0, 0)    # param 5 ~ 7 not used
+    # send command to vehicle
+    vehicle.send_mavlink(msg)
+
 def set_velocity_body(Vx, Vy, Vz):
     msg = vehicle.message_factory.set_position_target_local_ned_encode(
         0,
@@ -175,6 +193,8 @@ def set_velocity_body(Vx, Vy, Vz):
 
 #CAMERA#
 def take_pictures(x, y):
+    condition_yaw(full_yaw)
+    time.sleep(5)
     vehicle.mode = VehicleMode("BRAKE")
     time.sleep(3)
     '''
@@ -200,8 +220,8 @@ def take_pictures(x, y):
         camera.capture('/home/pi/Pictures/test3/' + str(x) +
                        '_' + str(y) + '_r' + str(i) + '.jpg')
     camera.stop_preview()
-    vehicle.mode = VehicleMode("GUIDED")
     '''
+    vehicle.mode = VehicleMode("GUIDED")
     set_velocity_body(0, 0, 0)
 # MAIN
 
@@ -223,7 +243,6 @@ for wp in mission_pts:
     while distance_to_current_waypoint(wp[0], wp[1], full_altitude) > 0.5:
         time.sleep(0.5)
     time.sleep(2)
-
     take_pictures(r, c)
 
     c = c+1

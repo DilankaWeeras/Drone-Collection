@@ -81,7 +81,7 @@ def distance_to_current_waypoint(lat, lon, alt):
     """
     targetWaypointLocation = LocationGlobalRelative(lat,lon,alt)
     distancetopoint = get_distance_metres(vehicle.location.global_frame, targetWaypointLocation)
-    print(distancetopoint)
+    print("Distance to waypoint: " + distancetopoint)
     return distancetopoint
 
 #MISSION
@@ -246,14 +246,14 @@ for wp in mission_pts:
     take_pictures(r, c)
 
     c = c+1
-    if c == cols:
+    if c >= cols:
         r = r+1
         c = 0
-    if r == rows:
+    if r >= rows:
         break
 time.sleep(1)
 print("Going Home...")
-vehicle.commands.goto(home)
+vehicle.simple_goto(home)
 #except:
 print("Unexpected error: Landing")
 vehicle.mode = VehicleMode("LAND")

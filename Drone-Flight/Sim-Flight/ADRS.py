@@ -28,9 +28,13 @@ camera.framerate = 15
 '''
 #Global Variables --
 global full_altitude
+full_altitude = 0
 global full_yaw
+full_yaw = 0
 global rows
+rows = 0
 global cols
+cols = 0
 mission_pts = []
 
 #PRINT METHODS
@@ -89,7 +93,11 @@ def clear_drone_cmds():
     print("Commands cleared.")
 
 def read_add_waypoints():
-    #clear_drone_cmds()
+    clear_drone_cmds()
+    global full_altitude
+    global full_yaw
+    global rows
+    global cols
 
     print("Opening Locations")
     file_loc = open('locations.txt', 'r')

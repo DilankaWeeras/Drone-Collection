@@ -266,7 +266,7 @@ try:
         take_pictures(r, c)
 
         c = c+1
-        if c >= cols:
+        if True:
             r = r+1
             c = 0
         if r >= rows:

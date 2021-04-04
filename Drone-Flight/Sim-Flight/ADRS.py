@@ -81,7 +81,7 @@ def distance_to_current_waypoint(lat, lon, alt):
     """
     targetWaypointLocation = LocationGlobalRelative(lat,lon,alt)
     distancetopoint = get_distance_metres(vehicle.location.global_frame, targetWaypointLocation)
-    print("Distance to waypoint: " + distancetopoint)
+    print("Distance to waypoint: " + str(distancetopoint))
     return distancetopoint
 
 #MISSION

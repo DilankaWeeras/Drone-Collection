@@ -218,10 +218,10 @@ try:
         take_pictures()
 
         c = c+1
-        if c = cols:
+        if c == cols:
             r = r+1
             c = 0
-        if r = rows:
+        if r == rows:
             break
     time.sleep(1)
     print("Going Home...")

@@ -216,7 +216,7 @@ try:
     for wp in mission_pts:
         print("Going to Point:\t" + str(r) + "_" +str(c))
         print("Going to location\t" + str(wp[0]) + str(wp[1]))
-        point = Location(wp[0], wp[1], full_altitude, is_relative=True)
+        point = Location(float(wp[0]), float(wp[1]), float(full_altitude), is_relative=True)
         print("TEST")
         vehicle.commands.goto(point)
         print("TEST")

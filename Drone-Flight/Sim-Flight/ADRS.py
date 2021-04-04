@@ -246,8 +246,8 @@ def take_pictures(x, y):
 
 try:
     read_add_waypoints()
-    print("Rows: " + rows)
-    print("Cols: " + cols)
+    print("Rows: " + str(rows))
+    print("Cols: " + str(cols))
     arm_and_takeoff(int(full_altitude))
     home = vehicle.location.global_frame
     r = 0

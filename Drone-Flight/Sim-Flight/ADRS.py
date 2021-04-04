@@ -27,8 +27,8 @@ camera.resolution = (1920, 1080)
 camera.framerate = 15
 '''
 #Global Variables --
-full_altitude = 0
-full_yaw = 0
+#full_altitude = 0
+#full_yaw = 0
 rows = 0
 cols = 0
 mission_pts = []
@@ -203,7 +203,7 @@ try:
     print(str(full_altitude))
     print(str(full_yaw))
     print(mission_pts[0][0])
-    
+
     arm_and_takeoff(int(full_altitude))
     print("TEST")
     home = vehicle.location.global_frame

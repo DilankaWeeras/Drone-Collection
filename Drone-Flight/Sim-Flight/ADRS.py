@@ -216,7 +216,7 @@ c = 0
 for wp in mission_pts:
     print("Going to Point:\t" + str(r) + "_" +str(c))
     print("Going to location: " + str(wp[0]) + " " + str(wp[1]))
-    point = Location(30.644706339933535, -96.29998047248097, 20, is_relative=True)
+    point = LocationGlobalRelative(30.644706339933535, -96.29998047248097, 20, is_relative=True)
     #point = Location(float(wp[0]), float(wp[1]), float(full_altitude), is_relative=True)
     print("TEST")
     vehicle.commands.goto(point)

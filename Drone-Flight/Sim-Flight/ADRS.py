@@ -95,24 +95,30 @@ def clear_drone_cmds():
     print("Commands cleared.")
 
 def read_add_waypoints():
-    clear_drone_cmds()
+    #clear_drone_cmds()
 
     print("Opening Locations")
     file_loc = open('locations.txt', 'r')
     
-    line_split = file_loc[0].split(',')
-    full_altitude = line_split[0]
-    full_yaw = line_split[1]
-    print("Altitude = %d", full_altitude)
-    print("Yaw = %d", full_yaw)
-    line_split = file_loc[1].split(',')
-    rows = line_split[0]
-    cols = line_split[1]
-    print("Rows = %d", rows)
-    print("Colums = %d", cols)
+    lines = file_loc.readlines()
+    line_split = lines[0].split(',')
+    full_altitude = int(line_split[0])
+    full_yaw = int(line_split[1])
+    print("Altitude = " + str(full_altitude))
+    print("Yaw = " + str(full_yaw))
+    line = file_loc.readline()
+    line_split = lines[1].split(',')
+    rows = int(line_split[0])
+    cols = (line_split[1])
+    print("Rows = " + str(rows))
+    print("Colums = " + str(cols))
 
-    for line in file_loc[2:]:
-        mission_pts.append(line)
+    for line in lines[2:]:
+        line_split = line.split(',')
+        print("Adding waypoint at: " + line)
+        line_split[0] = float(line_split[0])
+        line_split[1] = float(line_split[1])
+        mission_pts.append(line_split)
     
     file_loc.close()
     print(mission_pts)
@@ -194,6 +200,7 @@ def take_pictures(x, y):
     camera.stop_preview()
     vehicle.mode = VehicleMode("GUIDED")
     '''
+    set_velocity_body(0, 0, 0)
 # MAIN
 
 

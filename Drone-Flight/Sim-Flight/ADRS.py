@@ -206,39 +206,39 @@ def take_pictures(x, y):
 # MAIN
 
 
-try:
-    read_add_waypoints()
-    arm_and_takeoff(int(full_altitude))
-    home = vehicle.location.global_frame
-    #print_location()
-    r = 0
-    c = 0
-    for wp in mission_pts:
-        print("Going to Point:\t" + str(r) + "_" +str(c))
-        print("Going to location: " + str(wp[0]) + " " + str(wp[1]))
-        point = Location(30.644706339933535, -96.29998047248097, 20, is_relative=True)
-        #point = Location(float(wp[0]), float(wp[1]), float(full_altitude), is_relative=True)
-        print("TEST")
-        vehicle.commands.goto(point)
-        print("TEST")
-        vehicle.flush()
-        print("TEST")
-        time.sleep(5)
+#try:
+read_add_waypoints()
+arm_and_takeoff(int(full_altitude))
+home = vehicle.location.global_frame
+#print_location()
+r = 0
+c = 0
+for wp in mission_pts:
+    print("Going to Point:\t" + str(r) + "_" +str(c))
+    print("Going to location: " + str(wp[0]) + " " + str(wp[1]))
+    point = Location(30.644706339933535, -96.29998047248097, 20, is_relative=True)
+    #point = Location(float(wp[0]), float(wp[1]), float(full_altitude), is_relative=True)
+    print("TEST")
+    vehicle.commands.goto(point)
+    print("TEST")
+    vehicle.flush()
+    print("TEST")
+    time.sleep(5)
 
-        while distance_to_current_waypoint(wp[0], wp[1], full_altitude) > 0.5:
-            time.sleep(0.5)
+    while distance_to_current_waypoint(wp[0], wp[1], full_altitude) > 0.5:
+        time.sleep(0.5)
 
-        take_pictures()
+    take_pictures()
 
-        c = c+1
-        if c == cols:
-            r = r+1
-            c = 0
-        if r == rows:
-            break
-    time.sleep(1)
-    print("Going Home...")
-    vehicle.commands.goto(home)
-except:
-    print("Unexpected error: Landing")
-    vehicle.mode = VehicleMode("LAND")
+    c = c+1
+    if c == cols:
+        r = r+1
+        c = 0
+    if r == rows:
+        break
+time.sleep(1)
+print("Going Home...")
+vehicle.commands.goto(home)
+#except:
+print("Unexpected error: Landing")
+vehicle.mode = VehicleMode("LAND")

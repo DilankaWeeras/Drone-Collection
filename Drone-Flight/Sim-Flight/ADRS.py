@@ -122,7 +122,7 @@ def read_add_waypoints():
     line = file_loc.readline()
     line_split = lines[1].split(',')
     rows = int(line_split[0])
-    cols = (line_split[1])
+    cols = int(line_split[1])
     print("Rows = " + str(rows))
     print("Colums = " + str(cols))
 
@@ -266,7 +266,7 @@ try:
         take_pictures(r, c)
 
         c = c+1
-        if True:
+        if c >= cols:
             r = r+1
             c = 0
         if r >= rows:

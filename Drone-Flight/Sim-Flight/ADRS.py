@@ -209,19 +209,20 @@ def take_pictures(x, y):
 try:
     read_add_waypoints()
     arm_and_takeoff(int(full_altitude))
-    print("TEST")
     home = vehicle.location.global_frame
-    print("TEST")
     #print_location()
     r = 0
     c = 0
-    print("TEST")
     for wp in mission_pts:
-        print("Going to Point:" + str(r) + "_" +str(c))
-        print("Going to location" + str(wp[0]) + str(wp[1]))
+        print("Going to Point:\t" + str(r) + "_" +str(c))
+        print("Going to location\t" + str(wp[0]) + str(wp[1]))
         point = Location(wp[0], wp[1], full_altitude, is_relative=True)
+        print("TEST")
         vehicle.commands.goto(point)
+        print("TEST")
         vehicle.flush()
+        print("TEST")
+        time.sleep(5)
 
         while distance_to_current_waypoint(wp[0], wp[1], full_altitude) > 0.5:
             time.sleep(0.5)

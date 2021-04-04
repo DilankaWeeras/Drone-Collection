@@ -219,7 +219,7 @@ for wp in mission_pts:
     point = LocationGlobalRelative(30.644706339933535, -96.29998047248097, 20)
     #point = Location(float(wp[0]), float(wp[1]), float(full_altitude), is_relative=True)
     print("TEST")
-    vehicle.commands.goto(point)
+    vehicle.simple_goto(point)
     print("TEST")
     vehicle.flush()
     print("TEST")

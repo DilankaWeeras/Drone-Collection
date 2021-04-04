@@ -216,13 +216,9 @@ c = 0
 for wp in mission_pts:
     print("Going to Point:\t" + str(r) + "_" +str(c))
     print("Going to location: " + str(wp[0]) + " " + str(wp[1]))
-    point = LocationGlobalRelative(30.644706339933535, -96.29998047248097, 20)
-    #point = Location(float(wp[0]), float(wp[1]), float(full_altitude), is_relative=True)
-    print("TEST")
+    point = LocationGlobalRelative(float(wp[0]), float(wp[1]), float(full_altitude))
     vehicle.simple_goto(point)
-    print("TEST")
     vehicle.flush()
-    print("TEST")
     time.sleep(5)
 
     while distance_to_current_waypoint(wp[0], wp[1], full_altitude) > 0.5:

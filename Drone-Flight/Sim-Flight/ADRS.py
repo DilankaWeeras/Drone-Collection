@@ -219,12 +219,12 @@ for wp in mission_pts:
     point = LocationGlobalRelative(float(wp[0]), float(wp[1]), float(full_altitude))
     vehicle.simple_goto(point)
     vehicle.flush()
-    time.sleep(5)
 
     while distance_to_current_waypoint(wp[0], wp[1], full_altitude) > 0.5:
         time.sleep(0.5)
+    time.sleep(2)
 
-    take_pictures()
+    take_pictures(r, c)
 
     c = c+1
     if c == cols:

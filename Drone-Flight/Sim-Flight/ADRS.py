@@ -27,10 +27,10 @@ camera.resolution = (1920, 1080)
 camera.framerate = 15
 '''
 #Global Variables --
-global full_altitude = 0
-global full_yaw = 0
-global rows = 0
-global cols = 0
+global full_altitude
+global full_yaw
+global rows
+global cols
 mission_pts = []
 
 #PRINT METHODS

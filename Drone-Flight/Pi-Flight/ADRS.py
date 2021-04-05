@@ -238,7 +238,7 @@ def take_pictures(x, y):
 
     camera.start_preview()
     time.sleep(3)
-    for x in range(1, 6):
+    for i in range(1, 6):
         camera.capture('/home/pi/Pictures/test3/' + str(x) +
                        '_' + str(y) + '_r' + str(i) + '.jpg')
     camera.stop_preview()

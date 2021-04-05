@@ -13,8 +13,7 @@ import time
 import math
 from pymavlink import mavutil
 
-
-#from picamera import PiCamera, Color
+from picamera import PiCamera, Color
 
 import argparse
 
@@ -22,7 +21,7 @@ parser = argparse.ArgumentParser(description='commands')
 parser.add_argument('--connect')
 args = parser.parse_args()
 
-connection_string = 'udpin:0.0.0.0:14550'
+connection_string = '/dev/ttyAMA0'
 baud_rate = 57600
 
 vehicle = connect(connection_string, baud=baud_rate, wait_ready=True)
@@ -230,21 +229,20 @@ def take_pictures(x, y):
         camera.capture('/home/pi/Pictures/test3/' + str(x) +
                        '_' + str(y) + '_l' + str(i) + '.jpg')
     camera.stop_preview()
-    
 
     vehicle.mode = VehicleMode("GUIDED")
     set_velocity_body(0, 1, 0)
     time.sleep(0.5)
     vehicle.mode = VehicleMode("BRAKE")
     time.sleep(1)
-    
+
     camera.start_preview()
     time.sleep(3)
     for x in range(1, 6):
         camera.capture('/home/pi/Pictures/test3/' + str(x) +
                        '_' + str(y) + '_r' + str(i) + '.jpg')
     camera.stop_preview()
-    
+
     vehicle.mode = VehicleMode("GUIDED")
     set_velocity_body(0, 0, 0)
 # MAIN

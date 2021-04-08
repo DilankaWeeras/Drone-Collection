@@ -248,6 +248,7 @@ read_add_waypoints()
 arm_and_takeoff(int(full_altitude))
 home = vehicle.location.global_frame
 for wp in mission_pts:
+    wp_threshold = 0.5
     print("Going to Point:\t" + str(wp[2]) + "_" + str(wp[3]))
     print("Going to location: " + str(wp[0]) + " " + str(wp[1]))
     point = LocationGlobalRelative(
@@ -255,15 +256,20 @@ for wp in mission_pts:
     vehicle.simple_goto(point)
     vehicle.flush()
 
-    while distance_to_current_waypoint(wp[0], wp[1], full_altitude) > 0.5:
+    wait_time = 0
+    while distance_to_current_waypoint(wp[0], wp[1], full_altitude) > wp_threshold:
         time.sleep(0.5)
+        wait_time = wait_time + 0.5
+        if wait_time > 30:
+            wp_threshold = wp_threshold + 0.2
+
     time.sleep(2)
     take_pictures(wp[2], wp[3])
 
 time.sleep(1)
 print("Going Home...")
 vehicle.simple_goto(home)
-while distance_to_current_waypoint(home.lat, home.lon, full_altitude) > 0.5:
+while distance_to_current_waypoint(home.lat, home.lon, full_altitude) > 2:
     time.sleep(0.5)
 vehicle.mode = VehicleMode("LAND")
 #except:

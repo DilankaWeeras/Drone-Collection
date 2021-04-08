@@ -30,7 +30,7 @@ vehicle = connect(connection_string, baud=baud_rate, wait_ready=True)
 camera = PiCamera()
 camera.rotation = 0
 # max is (2592,1944) for pic / (1920,1080) for vid at 15fps
-camera.resolution = (1920, 1080)
+camera.resolution = (2592,1944)
 camera.framerate = 15
 '''
 # Global Variables --
@@ -212,7 +212,7 @@ def take_pictures(x, y):
     time.sleep(6)
     vehicle.mode = VehicleMode("BRAKE")
     time.sleep(3)
-    print('Taking Left at ' + str(x) + str(y))
+    print('Taking Left at ' + str(x) + '_' + str(y))
     '''
     camera.start_preview()
 
@@ -228,7 +228,7 @@ def take_pictures(x, y):
     time.sleep(0.5)
     vehicle.mode = VehicleMode("BRAKE")
     time.sleep(3)
-    print('Taking Right at ' + str(x) + str(y))
+    print('Taking Right at ' + str(x) + '_' + str(y))
     '''
     camera.start_preview()
 

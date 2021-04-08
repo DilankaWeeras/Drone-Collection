@@ -1,5 +1,4 @@
 from __future__ import print_function
-import argparse
 from pymavlink import mavutil
 import math
 import time
@@ -12,10 +11,6 @@ from picamera import PiCamera, Color
 
 
 def execute_aerial_drone():
-    parser = argparse.ArgumentParser(description='commands')
-    parser.add_argument('--connect')
-    args = parser.parse_args()
-
     connection_string = '/dev/ttyAMA0'
     baud_rate = 57600
 

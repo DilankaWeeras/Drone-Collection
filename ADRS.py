@@ -35,7 +35,7 @@ def execute_aerial_drone():
     #full_yaw = 0
     '''
     #try:
-    mission_pts, full_altitude, full_yaw = read_add_waypoints()
+    mission_pts, full_altitude, full_yaw = read_add_waypoints(vehicle)
     arm_and_takeoff(int(full_altitude), vehicle)
     home = vehicle.location.global_frame
     for wp in mission_pts:
@@ -127,7 +127,7 @@ def distance_to_current_waypoint(lat, lon, alt, vehicle):
 # MISSION
 
 
-def clear_drone_cmds():
+def clear_drone_cmds(vehicle):
     cmds = vehicle.commands
     print("Removing Automatic commands...")
     cmds.clear()
@@ -135,8 +135,8 @@ def clear_drone_cmds():
     print("Commands cleared.")
 
 
-def read_add_waypoints():
-    clear_drone_cmds()
+def read_add_waypoints(vehicle):
+    clear_drone_cmds(vehicle)
     mission_pts = []
 
     print("Opening Locations")

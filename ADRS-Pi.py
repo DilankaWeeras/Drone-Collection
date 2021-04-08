@@ -5,11 +5,10 @@ import math
 import time
 from dronekit import connect, VehicleMode, LocationGlobalRelative, LocationGlobal, Command
 
-#from picamera import PiCamera, Color
+from picamera import PiCamera, Color
 
 
-
-# PRINT METHODS
+# EXECUTE METHODS
 
 
 def execute_aerial_drone():
@@ -17,60 +16,59 @@ def execute_aerial_drone():
     parser.add_argument('--connect')
     args = parser.parse_args()
 
-    connection_string = 'udpin:0.0.0.0:14550'
+    connection_string = '/dev/ttyAMA0'
     baud_rate = 57600
 
     vehicle = connect(connection_string, baud=baud_rate, wait_ready=True)
-    '''
+
     # Camera Setup --
     camera = PiCamera()
     camera.rotation = 0
     # max is (2592,1944) for pic / (1920,1080) for vid at 15fps
-    camera.resolution = (2592,1944)
+    camera.resolution = (2592, 1944)
     camera.framerate = 15
     # Global Variables --
     #global full_altitude
     #full_altitude = 0
     #global full_yaw
     #full_yaw = 0
-    '''
-    #try:
-    mission_pts, full_altitude, full_yaw = read_add_waypoints(vehicle)
-    arm_and_takeoff(int(full_altitude), vehicle)
-    home = vehicle.location.global_frame
-    for wp in mission_pts:
-        wp_threshold = 0.65
-        print("Going to Point:\t" + str(wp[2]) + "_" + str(wp[3]))
-        print("Going to location: " + str(wp[0]) + " " + str(wp[1]))
-        point = LocationGlobalRelative(
-            float(wp[0]), float(wp[1]), float(full_altitude))
-        vehicle.simple_goto(point)
-        vehicle.flush()
 
-        wait_time = 0
-        while distance_to_current_waypoint(wp[0], wp[1], full_altitude, vehicle) > wp_threshold:
+    try:
+        mission_pts, full_altitude, full_yaw = read_add_waypoints(vehicle)
+        arm_and_takeoff(int(full_altitude), vehicle)
+        home = vehicle.location.global_frame
+        for wp in mission_pts:
+            wp_threshold = 0.65
+            print("Going to Point:\t" + str(wp[2]) + "_" + str(wp[3]))
+            print("Going to location: " + str(wp[0]) + " " + str(wp[1]))
+            point = LocationGlobalRelative(
+                float(wp[0]), float(wp[1]), float(full_altitude))
+            vehicle.simple_goto(point)
+            vehicle.flush()
+
+            wait_time = 0
+            while distance_to_current_waypoint(wp[0], wp[1], full_altitude, vehicle) > wp_threshold:
+                time.sleep(0.5)
+                wait_time = wait_time + 0.5
+                if wait_time > 20:
+                    wp_threshold = wp_threshold + 0.25
+
+            time.sleep(2)
+            take_pictures(wp[2], wp[3], full_yaw, vehicle, camera)
+
+        time.sleep(1)
+        print("Going Home...")
+        vehicle.simple_goto(home)
+        while distance_to_current_waypoint(home.lat, home.lon, full_altitude, vehicle) > 2:
             time.sleep(0.5)
-            wait_time = wait_time + 0.5
-            if wait_time > 20:
-                wp_threshold = wp_threshold + 0.25
-
         time.sleep(2)
-        camera = 0
-        take_pictures(wp[2], wp[3], full_yaw, vehicle, camera)
-
-    time.sleep(1)
-    print("Going Home...")
-    vehicle.simple_goto(home)
-    while distance_to_current_waypoint(home.lat, home.lon, full_altitude, vehicle) > 2:
-        time.sleep(0.5)
-    time.sleep(2)
-    vehicle.mode = VehicleMode("LAND")
-    #except:
-        #print("Unexpected error: Landing")
-        #vehicle.mode = VehicleMode("LAND")
+        vehicle.mode = VehicleMode("LAND")
+    except:
+        print("Unexpected error: Landing")
+        vehicle.mode = VehicleMode("LAND")
 
 
-
+#PRINT METHODS
 
 def print_location():
     """
@@ -242,93 +240,28 @@ def take_pictures(x, y, full_yaw, vehicle, camera):
     time.sleep(7)
     vehicle.mode = VehicleMode("BRAKE")
     time.sleep(1)
-    '''
+
     camera.start_preview()
     time.sleep(3)
     for i in range(1, 6):
         camera.capture('/home/pi/Pictures/test3/' + str(x) +
                        '_' + str(y) + '_l' + str(i) + '.jpg')
+        time.sleep(1)
     camera.stop_preview()
-    '''
+
     vehicle.mode = VehicleMode("GUIDED")
     set_velocity_body(vehicle, 0, 1, 0)
     time.sleep(0.5)
     vehicle.mode = VehicleMode("BRAKE")
     time.sleep(1)
-    '''
+
     camera.start_preview()
     time.sleep(3)
     for i in range(1, 6):
         camera.capture('/home/pi/Pictures/test3/' + str(x) +
                        '_' + str(y) + '_r' + str(i) + '.jpg')
+        time.sleep(1)
     camera.stop_preview()
-    '''
+
     vehicle.mode = VehicleMode("GUIDED")
     set_velocity_body(vehicle, 0, 0, 0)
-# MAIN
-
-
-
-'''
-parser = argparse.ArgumentParser(description='commands')
-parser.add_argument('--connect')
-args = parser.parse_args()
-
-connection_string = '/dev/ttyAMA0'
-baud_rate = 57600
-
-vehicle = connect(connection_string, baud=baud_rate, wait_ready=True)
-
-# Camera Setup --
-camera = PiCamera()
-camera.rotation = 0
-# max is (2592,1944) for pic / (1920,1080) for vid at 15fps
-camera.resolution = (2592,1944)
-camera.framerate = 15
-# Global Variables --
-global full_altitude
-full_altitude = 0
-global full_yaw
-full_yaw = 0
-mission_pts = []
-'''
-
-
-
-
-'''
-try:
-    read_add_waypoints()
-    arm_and_takeoff(int(full_altitude))
-    home = vehicle.location.global_frame
-    for wp in mission_pts:
-        wp_threshold = 0.65
-        print("Going to Point:\t" + str(wp[2]) + "_" + str(wp[3]))
-        print("Going to location: " + str(wp[0]) + " " + str(wp[1]))
-        point = LocationGlobalRelative(
-            float(wp[0]), float(wp[1]), float(full_altitude))
-        vehicle.simple_goto(point)
-        vehicle.flush()
-
-        wait_time = 0
-        while distance_to_current_waypoint(wp[0], wp[1], full_altitude) > wp_threshold:
-            time.sleep(0.5)
-            wait_time = wait_time + 0.5
-            if wait_time > 20:
-                wp_threshold = wp_threshold + 0.25
-
-        time.sleep(2)
-        take_pictures(wp[2], wp[3])
-
-    time.sleep(1)
-    print("Going Home...")
-    vehicle.simple_goto(home)
-    while distance_to_current_waypoint(home.lat, home.lon, full_altitude) > 2:
-        time.sleep(0.5)
-    time.sleep(2)
-    vehicle.mode = VehicleMode("LAND")
-except:
-    print("Unexpected error: Landing")
-    vehicle.mode = VehicleMode("LAND")
-'''
-execute_aerial_drone()

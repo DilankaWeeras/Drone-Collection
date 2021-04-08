@@ -4,35 +4,24 @@ from pymavlink import mavutil
 import math
 import time
 from dronekit import connect, VehicleMode, LocationGlobalRelative, LocationGlobal, Command
-'''
-import logging
 
-logging.basicConfig(level=logging.INFO, format='%(message)s')
-logger = logging.getLogger()
-logger.addHandler(logging.FileHandler('test.log', 'a'))
-print = logger.info
-'''
-
-#from picamera import PiCamera, Color
-
+from picamera import PiCamera, Color
 
 parser = argparse.ArgumentParser(description='commands')
 parser.add_argument('--connect')
 args = parser.parse_args()
 
-connection_string = 'udpin:0.0.0.0:14550'
+connection_string = '/dev/ttyAMA0'
 baud_rate = 57600
 
 vehicle = connect(connection_string, baud=baud_rate, wait_ready=True)
 
 # Camera Setup --
-'''
 camera = PiCamera()
 camera.rotation = 0
 # max is (2592,1944) for pic / (1920,1080) for vid at 15fps
-camera.resolution = (1920, 1080)
+camera.resolution = (2592, 1944)
 camera.framerate = 15
-'''
 # Global Variables --
 global full_altitude
 full_altitude = 0
@@ -209,35 +198,30 @@ def set_velocity_body(Vx, Vy, Vz):
 
 def take_pictures(x, y):
     condition_yaw(full_yaw)
-    time.sleep(6)
+    time.sleep(5)
     vehicle.mode = VehicleMode("BRAKE")
-    time.sleep(3)
-    print('Taking Left at ' + str(x) + str(y))
-    '''
-    camera.start_preview()
+    time.sleep(1)
 
+    camera.start_preview()
     time.sleep(3)
     for i in range(1, 6):
         camera.capture('/home/pi/Pictures/test3/' + str(x) +
                        '_' + str(y) + '_l' + str(i) + '.jpg')
     camera.stop_preview()
-    '''
 
     vehicle.mode = VehicleMode("GUIDED")
     set_velocity_body(0, 1, 0)
     time.sleep(0.5)
     vehicle.mode = VehicleMode("BRAKE")
-    time.sleep(3)
-    print('Taking Right at ' + str(x) + str(y))
-    '''
-    camera.start_preview()
+    time.sleep(1)
 
+    camera.start_preview()
     time.sleep(3)
     for i in range(1, 6):
         camera.capture('/home/pi/Pictures/test3/' + str(x) +
                        '_' + str(y) + '_r' + str(i) + '.jpg')
     camera.stop_preview()
-    '''
+
     vehicle.mode = VehicleMode("GUIDED")
     set_velocity_body(0, 0, 0)
 # MAIN

@@ -17,7 +17,7 @@ def execute_aerial_drone():
     parser.add_argument('--connect')
     args = parser.parse_args()
 
-    connection_string = '/dev/ttyAMA0'
+    connection_string = 'udpin:0.0.0.0:14550'
     baud_rate = 57600
 
     vehicle = connect(connection_string, baud=baud_rate, wait_ready=True)

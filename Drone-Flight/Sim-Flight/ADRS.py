@@ -1,4 +1,9 @@
 from __future__ import print_function
+import argparse
+from pymavlink import mavutil
+import math
+import time
+from dronekit import connect, VehicleMode, LocationGlobalRelative, LocationGlobal, Command
 import logging
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
@@ -6,14 +11,9 @@ logger = logging.getLogger()
 logger.addHandler(logging.FileHandler('test.log', 'a'))
 print = logger.info
 
-from dronekit import connect, VehicleMode, LocationGlobalRelative, LocationGlobal, Command
-import time
-import math
-from pymavlink import mavutil
 
 #from picamera import PiCamera, Color
 
-import argparse
 
 parser = argparse.ArgumentParser(description='commands')
 parser.add_argument('--connect')
@@ -37,10 +37,6 @@ global full_altitude
 full_altitude = 0
 global full_yaw
 full_yaw = 0
-global rows
-rows = 0
-global cols
-cols = 0
 mission_pts = []
 
 # PRINT METHODS
@@ -113,8 +109,6 @@ def read_add_waypoints():
     clear_drone_cmds()
     global full_altitude
     global full_yaw
-    global rows
-    global cols
 
     print("Opening Locations")
     file_loc = open('locations.txt', 'r')
@@ -125,18 +119,14 @@ def read_add_waypoints():
     full_yaw = int(line_split[1])
     print("Altitude = " + str(full_altitude))
     print("Yaw = " + str(full_yaw))
-    line = file_loc.readline()
-    line_split = lines[1].split(',')
-    rows = int(line_split[0])
-    cols = int(line_split[1])
-    print("Rows = " + str(rows))
-    print("Colums = " + str(cols))
 
-    for line in lines[2:]:
+    for line in lines[1:]:
         line_split = line.split(',')
         print("Adding waypoint at: " + line)
         line_split[0] = float(line_split[0])
         line_split[1] = float(line_split[1])
+        line_split[2] = int(line_split[2])
+        line_split[3] = int(line_split[3])
         mission_pts.append(line_split)
 
     file_loc.close()
@@ -218,9 +208,10 @@ def set_velocity_body(Vx, Vy, Vz):
 
 def take_pictures(x, y):
     condition_yaw(full_yaw)
-    time.sleep(5)
+    time.sleep(6)
     vehicle.mode = VehicleMode("BRAKE")
     time.sleep(3)
+    print('Taking Left at ' + str(x) + str(y))
     '''
     camera.start_preview()
 
@@ -236,11 +227,12 @@ def take_pictures(x, y):
     time.sleep(0.5)
     vehicle.mode = VehicleMode("BRAKE")
     time.sleep(3)
+    print('Taking Right at ' + str(x) + str(y))
     '''
     camera.start_preview()
 
     time.sleep(3)
-    for x in range(1, 6):
+    for i in range(1, 6):
         camera.capture('/home/pi/Pictures/test3/' + str(x) +
                        '_' + str(y) + '_r' + str(i) + '.jpg')
     camera.stop_preview()
@@ -252,14 +244,10 @@ def take_pictures(x, y):
 
 try:
     read_add_waypoints()
-    print("Rows: " + str(rows))
-    print("Cols: " + str(cols))
     arm_and_takeoff(int(full_altitude))
     home = vehicle.location.global_frame
-    r = 0
-    c = 0
     for wp in mission_pts:
-        print("Going to Point:\t" + str(r) + "_" + str(c))
+        print("Going to Point:\t" + str(wp[2]) + "_" + str(wp[3]))
         print("Going to location: " + str(wp[0]) + " " + str(wp[1]))
         point = LocationGlobalRelative(
             float(wp[0]), float(wp[1]), float(full_altitude))
@@ -269,16 +257,8 @@ try:
         while distance_to_current_waypoint(wp[0], wp[1], full_altitude) > 0.5:
             time.sleep(0.5)
         time.sleep(2)
-        take_pictures(r, c)
+        take_pictures(wp[2], wp[3])
 
-        c = c+1
-        '''
-        if c >= cols:
-            r = r+1
-            c = 0
-        if r >= rows:
-            break
-        '''
     time.sleep(1)
     print("Going Home...")
     vehicle.simple_goto(home)

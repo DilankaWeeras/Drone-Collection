@@ -34,40 +34,40 @@ def execute_aerial_drone():
     #global full_yaw
     #full_yaw = 0
     '''
-    try:
-        mission_pts, full_altitude, full_yaw = read_add_waypoints()
-        arm_and_takeoff(int(full_altitude), vehicle)
-        home = vehicle.location.global_frame
-        for wp in mission_pts:
-            wp_threshold = 0.65
-            print("Going to Point:\t" + str(wp[2]) + "_" + str(wp[3]))
-            print("Going to location: " + str(wp[0]) + " " + str(wp[1]))
-            point = LocationGlobalRelative(
-                float(wp[0]), float(wp[1]), float(full_altitude))
-            vehicle.simple_goto(point)
-            vehicle.flush()
+    #try:
+    mission_pts, full_altitude, full_yaw = read_add_waypoints()
+    arm_and_takeoff(int(full_altitude), vehicle)
+    home = vehicle.location.global_frame
+    for wp in mission_pts:
+        wp_threshold = 0.65
+        print("Going to Point:\t" + str(wp[2]) + "_" + str(wp[3]))
+        print("Going to location: " + str(wp[0]) + " " + str(wp[1]))
+        point = LocationGlobalRelative(
+            float(wp[0]), float(wp[1]), float(full_altitude))
+        vehicle.simple_goto(point)
+        vehicle.flush()
 
-            wait_time = 0
-            while distance_to_current_waypoint(wp[0], wp[1], full_altitude, vehicle) > wp_threshold:
-                time.sleep(0.5)
-                wait_time = wait_time + 0.5
-                if wait_time > 20:
-                    wp_threshold = wp_threshold + 0.25
-
-            time.sleep(2)
-            camera = 0
-            take_pictures(wp[2], wp[3], full_yaw, vehicle, camera)
-
-        time.sleep(1)
-        print("Going Home...")
-        vehicle.simple_goto(home)
-        while distance_to_current_waypoint(home.lat, home.lon, full_altitude, vehicle) > 2:
+        wait_time = 0
+        while distance_to_current_waypoint(wp[0], wp[1], full_altitude, vehicle) > wp_threshold:
             time.sleep(0.5)
+            wait_time = wait_time + 0.5
+            if wait_time > 20:
+                wp_threshold = wp_threshold + 0.25
+
         time.sleep(2)
-        vehicle.mode = VehicleMode("LAND")
-    except:
-        print("Unexpected error: Landing")
-        vehicle.mode = VehicleMode("LAND")
+        camera = 0
+        take_pictures(wp[2], wp[3], full_yaw, vehicle, camera)
+
+    time.sleep(1)
+    print("Going Home...")
+    vehicle.simple_goto(home)
+    while distance_to_current_waypoint(home.lat, home.lon, full_altitude, vehicle) > 2:
+        time.sleep(0.5)
+    time.sleep(2)
+    vehicle.mode = VehicleMode("LAND")
+    #except:
+        #print("Unexpected error: Landing")
+        #vehicle.mode = VehicleMode("LAND")
 
 
 

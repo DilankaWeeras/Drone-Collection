@@ -198,7 +198,7 @@ def set_velocity_body(Vx, Vy, Vz):
 
 def take_pictures(x, y):
     condition_yaw(full_yaw)
-    time.sleep(6)
+    time.sleep(7)
     vehicle.mode = VehicleMode("BRAKE")
     time.sleep(1)
 
@@ -245,7 +245,7 @@ try:
             time.sleep(0.5)
             wait_time = wait_time + 0.5
             if wait_time > 20:
-                wp_threshold = wp_threshold + 0.2
+                wp_threshold = wp_threshold + 0.25
 
         time.sleep(2)
         take_pictures(wp[2], wp[3])

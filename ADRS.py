@@ -5,7 +5,7 @@ import math
 import time
 from dronekit import connect, VehicleMode, LocationGlobalRelative, LocationGlobal, Command
 
-from picamera import PiCamera, Color
+#from picamera import PiCamera, Color
 
 
 
@@ -21,7 +21,7 @@ def execute_aerial_drone():
     baud_rate = 57600
 
     vehicle = connect(connection_string, baud=baud_rate, wait_ready=True)
-
+    '''
     # Camera Setup --
     camera = PiCamera()
     camera.rotation = 0
@@ -33,7 +33,7 @@ def execute_aerial_drone():
     #full_altitude = 0
     #global full_yaw
     #full_yaw = 0
-
+    '''
     try:
         mission_pts, full_altitude, full_yaw = read_add_waypoints()
         arm_and_takeoff(int(full_altitude), vehicle)
@@ -55,6 +55,7 @@ def execute_aerial_drone():
                     wp_threshold = wp_threshold + 0.25
 
             time.sleep(2)
+            camera = 0
             take_pictures(wp[2], wp[3], full_yaw, vehicle, camera)
 
         time.sleep(1)

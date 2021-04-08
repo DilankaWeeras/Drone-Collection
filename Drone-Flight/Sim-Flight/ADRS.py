@@ -242,29 +242,29 @@ def take_pictures(x, y):
 # MAIN
 
 
-try:
-    read_add_waypoints()
-    arm_and_takeoff(int(full_altitude))
-    home = vehicle.location.global_frame
-    for wp in mission_pts:
-        print("Going to Point:\t" + str(wp[2]) + "_" + str(wp[3]))
-        print("Going to location: " + str(wp[0]) + " " + str(wp[1]))
-        point = LocationGlobalRelative(
-            float(wp[0]), float(wp[1]), float(full_altitude))
-        vehicle.simple_goto(point)
-        vehicle.flush()
+#try:
+read_add_waypoints()
+arm_and_takeoff(int(full_altitude))
+home = vehicle.location.global_frame
+for wp in mission_pts:
+    print("Going to Point:\t" + str(wp[2]) + "_" + str(wp[3]))
+    print("Going to location: " + str(wp[0]) + " " + str(wp[1]))
+    point = LocationGlobalRelative(
+        float(wp[0]), float(wp[1]), float(full_altitude))
+    vehicle.simple_goto(point)
+    vehicle.flush()
 
-        while distance_to_current_waypoint(wp[0], wp[1], full_altitude) > 0.5:
-            time.sleep(0.5)
-        time.sleep(2)
-        take_pictures(wp[2], wp[3])
-
-    time.sleep(1)
-    print("Going Home...")
-    vehicle.simple_goto(home)
-    while distance_to_current_waypoint(home.lat, home.lon, full_altitude) > 0.5:
+    while distance_to_current_waypoint(wp[0], wp[1], full_altitude) > 0.5:
         time.sleep(0.5)
-    vehicle.mode = VehicleMode("LAND")
-except:
-    print("Unexpected error: Landing")
-    vehicle.mode = VehicleMode("LAND")
+    time.sleep(2)
+    take_pictures(wp[2], wp[3])
+
+time.sleep(1)
+print("Going Home...")
+vehicle.simple_goto(home)
+while distance_to_current_waypoint(home.lat, home.lon, full_altitude) > 0.5:
+    time.sleep(0.5)
+vehicle.mode = VehicleMode("LAND")
+#except:
+    #print("Unexpected error: Landing")
+    #vehicle.mode = VehicleMode("LAND")
